@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>李克臻的博客</title>
+  
+  <subtitle>记住迄今为止每一次失败时有心无力的感受，“为了更美好的明天而战”。</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://yoursite.com/"/>
+  <updated>2020-02-22T06:37:13.880Z</updated>
+  <id>http://yoursite.com/</id>
+  
+  <author>
+    <name>李克臻</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>GitHub小技巧</title>
+    <link href="http://yoursite.com/2020/02/22/GitHub%E5%B0%8F%E6%8A%80%E5%B7%A7/"/>
+    <id>http://yoursite.com/2020/02/22/GitHub%E5%B0%8F%E6%8A%80%E5%B7%A7/</id>
+    <published>2020-02-22T03:02:10.000Z</published>
+    <updated>2020-02-22T06:37:13.880Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="http://gss0.baidu.com/94o3dSag_xI4khGko9WTAnF6hhy/zhidao/pic/item/bba1cd11728b471049731910c5cec3fdfd03238a.jpg" alt></p><a id="more"></a><h3 id="GitHub小技巧"><a href="#GitHub小技巧" class="headerlink" title="GitHub小技巧"></a>GitHub小技巧</h3><hr><h2 id="（一）快捷键查看：shift"><a href="#（一）快捷键查看：shift" class="headerlink" title="（一）快捷键查看：shift + ?"></a>（一）快捷键查看：shift + ?</h2><p>在任意界面输入shift + ?，可以显示快捷键。</p><hr><h2 id="（二）查看自己项目的访问数据：Insights-Traffic"><a href="#（二）查看自己项目的访问数据：Insights-Traffic" class="headerlink" title="（二）查看自己项目的访问数据：Insights - Traffic"></a>（二）查看自己项目的访问数据：Insights - Traffic</h2><p>在自己的项目下，点击Insights-Traffic，里面有Referring sites（代表大家从什么网页来到你的项目）和Popular content（代表大家经常看你项目的什么文件）。<br><img src="https://dragonbaby308.oss-cn-hangzhou.aliyuncs.com/git/github/shortcut.png" alt></p><hr><h2 id="（三）编辑代码"><a href="#（三）编辑代码" class="headerlink" title="（三）编辑代码"></a>（三）编辑代码</h2><p>在查看任意文件时，右上角会有一个小铅笔的标识。<br><img src="https://dragonbaby308.oss-cn-hangzhou.aliyuncs.com/git/github/pen.png" alt><br>点击小铅笔就可以直接编辑文件，编辑完成后，直接在页面上点击Propose File Change，Github就会为你fork这个仓库，创建一个pull request，节省了在本地fork -&gt; pull -&gt; 修改 -&gt; push -&gt; 创建PR的过程。</p><hr><h2 id="（四）趋势图——https-octoverse-github-com"><a href="#（四）趋势图——https-octoverse-github-com" class="headerlink" title="（四）趋势图——https://octoverse.github.com/"></a>（四）趋势图——<a href="https://octoverse.github.com/" target="_blank" rel="noopener">https://octoverse.github.com/</a></h2><p>Github语言趋势图：<a href="https://octoverse.github.com/" target="_blank" rel="noopener">https://octoverse.github.com/</a></p><hr><h2 id="（五）精确搜索项目"><a href="#（五）精确搜索项目" class="headerlink" title="（五）精确搜索项目"></a>（五）精确搜索项目</h2><p>in:name keyWord：项目名中含有keyWord<br>in:readme keyWord：项目README.md中含有keyWord<br>in:description keyWord：项目描述中含有keyWord<br>stars:&gt;N：星星数量大于N<br>language:Golang：语言限定为Golang语言<br>pushed:&gt;2019-06-06：最后一次提交时间晚于2019-06-06<br>比如我想搜索Golang语言微服务项目，最后一次提交时间要晚于2019-06-06，星星数量大于1000个：<br>in:description 微服务 language:go pushed:&gt;2019-06-06 stars:&gt;1000</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;http://gss0.baidu.com/94o3dSag_xI4khGko9WTAnF6hhy/zhidao/pic/item/bba1cd11728b471049731910c5cec3fdfd03238a.jpg&quot; alt&gt;&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>IDEA的Mybatis逆向生成jar包</title>
+    <link href="http://yoursite.com/2020/02/19/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/"/>
+    <id>http://yoursite.com/2020/02/19/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</id>
+    <published>2020-02-19T05:27:06.000Z</published>
+    <updated>2020-02-22T07:42:15.283Z</updated>
+    
+    <content type="html"><![CDATA[<p>Mybatis所需的连接池、mysql、jdbc、mybatis不冲突的依赖包</p><a id="more"></a><!-- 引入 mysql 依赖 --><pre><code>&lt;dependency&gt;    &lt;groupId&gt;mysql&lt;/groupId&gt;    &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;    &lt;version&gt;5.1.47&lt;/version&gt;&lt;/dependency&gt;&lt;!-- springjdbc 依赖（管理事务） --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;    &lt;artifactId&gt;spring-boot-starter-jdbc&lt;/artifactId&gt;&lt;/dependency&gt;&lt;!-- spring mybatis --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.mybatis.spring.boot&lt;/groupId&gt;    &lt;artifactId&gt;mybatis-spring-boot-starter&lt;/artifactId&gt;    &lt;version&gt;2.0.1&lt;/version&gt;&lt;/dependency&gt;&lt;!-- druid 连接池 --&gt;&lt;dependency&gt;    &lt;groupId&gt;com.alibaba&lt;/groupId&gt;    &lt;artifactId&gt;druid-spring-boot-starter&lt;/artifactId&gt;    &lt;version&gt;1.1.10&lt;/version&gt;&lt;/dependency&gt;&lt;!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test --&gt;&lt;!-- spring 测试单元依赖 --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;    &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;    &lt;scope&gt;test&lt;/scope&gt;&lt;/dependency&gt;&lt;!-- junit测试单元 --&gt;&lt;dependency&gt;    &lt;groupId&gt;junit&lt;/groupId&gt;    &lt;artifactId&gt;junit&lt;/artifactId&gt;&lt;/dependency&gt;&lt;dependency&gt;    &lt;groupId&gt;com.alibaba&lt;/groupId&gt;    &lt;artifactId&gt;fastjson&lt;/artifactId&gt;    &lt;version&gt;1.2.58&lt;/version&gt;&lt;/dependency&gt;</code></pre>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Mybatis所需的连接池、mysql、jdbc、mybatis不冲突的依赖包&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="java" scheme="http://yoursite.com/categories/java/"/>
+    
+    
+      <category term="mybatis" scheme="http://yoursite.com/tags/mybatis/"/>
+    
+      <category term="IDEA" scheme="http://yoursite.com/tags/IDEA/"/>
+    
+  </entry>
+  
+</feed>
