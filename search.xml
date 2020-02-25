@@ -1,8 +1,211 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>springboot2.x</title>
+    <url>/2020/02/25/springboot2-x/</url>
+    <content><![CDATA[<h3 id="Spring-Boot-2-x"><a href="#Spring-Boot-2-x" class="headerlink" title="Spring Boot 2.x"></a>Spring Boot 2.x</h3><p><img src="http://dingyue.nosdn.127.net/4GuZVKxvUg3vzLjjVKTanAINH=rMW9uWVVs0cIO2Q50BH1539255606511compressflag.jpg" alt></p>
+<a id="more"></a>
+<hr>
+<h4 id="（一）设计目的"><a href="#（一）设计目的" class="headerlink" title="（一）设计目的"></a>（一）设计目的</h4><ul>
+<li>简化<code>Spring</code>应用程序的初始搭建和开发过程</li>
+</ul>
+<hr>
+<h4 id="（二）设计理念"><a href="#（二）设计理念" class="headerlink" title="（二）设计理念"></a>（二）设计理念</h4><ul>
+<li>约定优于配置（Convention Over Configuration）</li>
+</ul>
+<hr>
+<h4 id="（三）特性"><a href="#（三）特性" class="headerlink" title="（三）特性"></a>（三）特性</h4><blockquote>
+<p>详细情况，见<a href="https://docs.spring.io/spring-boot/docs/current/reference/html/" target="_blank" rel="noopener">《Spring Boot官方文档》</a></p>
+</blockquote>
+<h5 id="【1】SpringApplication"><a href="#【1】SpringApplication" class="headerlink" title="【1】SpringApplication"></a>【1】SpringApplication</h5><h6 id="（1）控制台日志"><a href="#（1）控制台日志" class="headerlink" title="（1）控制台日志"></a>（1）控制台日志</h6><p>控制台默认只显示<code>INFO</code>级别的日志，如果需要查看启动失败时具体报错，可以设置为<code>DEBUG</code>级别。或者通过<code>java -jar xxx.jar --debug</code>启动</p>
+<h6 id="（2）自定义Banner"><a href="#（2）自定义Banner" class="headerlink" title="（2）自定义Banner"></a>（2）自定义Banner</h6><ol>
+<li>将<code>banner.txt</code>添加到classpath</li>
+<li>如果想自定义<code>banner.txt</code>文件位置，可以在<code>application.properties</code>添加<code>spring.banner.location</code>属性；如果文件编码非<code>UTF-8</code>，可以通过<code>spring.banner.charset</code>设置</li>
+<li>如果想通过<code>banner.gif/banner.jpg/banner.png</code>设置，可以通过<code>spring.banner.image.location</code>设置</li>
+</ol>
+<h6 id="（3）事件-amp-监听器"><a href="#（3）事件-amp-监听器" class="headerlink" title="（3）事件 &amp; 监听器"></a>（3）事件 &amp; 监听器</h6><p>由于有些事件在<code>ApplicationContext</code>创建前就被触发，所以不能用<code>@Bean</code>注册，需要使用<code>SpringApplication.addListeners(...)</code>设置监听器。<br>程序运行时，事件发送的顺序：</p>
+<ol>
+<li><code>ApplicationStartingEvent</code>：在运行开始时、但在任何处理（除了监听器和初始化器注册）之前发送</li>
+<li><code>ApplicationEnvironmentPreparedEvent</code>：在已知要在上下文中使用的<code>Environment</code>、但在上下文被创建之前发送 </li>
+<li><code>ApplicationPreparedEvent</code>：在Bean定义<code>（BeanDefinition）</code>被加载之后、<code>refresh()</code>开始之前发送</li>
+<li><code>ApplicationStartedEvent</code>：上下文被刷新<code>（refresh()）</code>之后、<code>ApplicationRunner/CommandLineRunner</code>被调用之前发送</li>
+<li><code>ApplicationStartedEvent</code>：上下文被刷新<code>（refresh()）</code>之后、<code>ApplicationRunner/CommandLineRunner</code>被调用之前发送</li>
+<li><code>ApplicationFailedEvent</code>：启动异常时发送</li>
+</ol>
+<h6 id="4-网络环境（ApplicationContext）"><a href="#4-网络环境（ApplicationContext）" class="headerlink" title="(4)网络环境（ApplicationContext）"></a>(4)网络环境（<code>ApplicationContext</code>）</h6><p><code>SpringApplication</code>会尝试替你创建正确类型的<code>ApplicationContext</code>，它的算法很简单：</p>
+<ol>
+<li>如果存在<code>Spring MVC</code>：创建<code>AnnotationConfigServletWebServerApplicationContext</code></li>
+<li>如果存在<code>Spring WebFlux</code>、不存在<code>Spring MVC</code>：创建<code>AnnotationConfigReactiveWebServerApplicationContext</code></li>
+<li>其他情况：创建<code>AnnotationConfigApplicationContext</code></li>
+<li>通过调用<code>setApplicationContextClass(...)</code>可以完全控制<code>ApplicationContext</code>的类型</li>
+</ol>
+<h6 id="（5）获取应用参数（ApplicationArguments）"><a href="#（5）获取应用参数（ApplicationArguments）" class="headerlink" title="（5）获取应用参数（ApplicationArguments）"></a>（5）获取应用参数（<code>ApplicationArguments</code>）</h6><p>如果想访问传递给<code>SpringApplication.run(...)</code>的参数，可以注入<code>（@Autowired）</code>一个<code>org.springframework.boot.ApplicationArguments</code><br>Bean:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">@Component</span><br><span class="line">public class MyBean&#123;</span><br><span class="line">    @Override</span><br><span class="line">    public MyBean(ApplicationArguments args)&#123;</span><br><span class="line">        boolean debug &#x3D; args.containsOption(&quot;debug&quot;);</span><br><span class="line">        List&lt;String&gt; files &#x3D; args.getNonOptionArgs();</span><br><span class="line">        &#x2F;&#x2F;...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h6 id="（6）ApplicationRunner-CommandLineRunner"><a href="#（6）ApplicationRunner-CommandLineRunner" class="headerlink" title="（6）ApplicationRunner/CommandLineRunner"></a>（6）<code>ApplicationRunner/CommandLineRunner</code></h6><p>如果想在<code>SpringApplication</code>已启动就运行特定代码，可以引用<code>ApplicationRunner/CommandLineRunner</code>接口，两个接口都只提供一个<code>run()</code>方法，一旦<code>SpringApplication.run(...)</code>运行结束就被调用。</p>
+<ol>
+<li><code>ApplicationRunner</code>传入<code>ApplicationArguments</code>实例作为参数<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">@Component</span><br><span class="line">public class MyBean implements ApplicationRunner&#123;</span><br><span class="line">    public void run(ApplicatioArguments args)&#123;</span><br><span class="line">        &#x2F;&#x2F;...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>CommandLineRunner传入String数组作为参数<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">@Component</span><br><span class="line">public class MyBean implements CommandLineRunner&#123;</span><br><span class="line">    public void run(String... args)&#123;</span><br><span class="line">        &#x2F;&#x2F;...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<hr>
+<h5 id="【2】外部化配置"><a href="#【2】外部化配置" class="headerlink" title="【2】外部化配置"></a>【2】外部化配置</h5><p><code>SpringBoot</code>允许通过<code>application.properties</code>/<code>application.yml</code>/环境变量/命令行参数将配置外部化，通过<code>@Value</code>/<code>Environment</code>/<code>@ConfigurationProperties</code>可以直接注入属性值。<br><strong>随机值</strong><br><code>RandomValuePropertySource</code>可以生产随机的属性值，用于注入：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">my.secret&#x3D;$&#123;random.value&#125;</span><br><span class="line">my.number&#x3D;$&#123;random.int&#125;</span><br><span class="line">my.bignumber&#x3D;$&#123;random.long&#125;</span><br><span class="line">my.uuid&#x3D;$&#123;random.uuid&#125;</span><br><span class="line">my.number.less.than.ten&#x3D;$&#123;random.int(10)&#125;</span><br><span class="line">my.number.in.range&#x3D;$&#123;random.int[1024,65536]&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h5 id="【3】根据环境切换配置文件"><a href="#【3】根据环境切换配置文件" class="headerlink" title="【3】根据环境切换配置文件"></a>【3】根据环境切换配置文件</h5><p>未完待续……</p>
+]]></content>
+      <categories>
+        <category>spring系列</category>
+      </categories>
+      <tags>
+        <tag>springboot</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>springcloud</title>
+    <url>/2020/02/18/springcloud/</url>
+    <content><![CDATA[<h3 id="Spring-Cloud"><a href="#Spring-Cloud" class="headerlink" title="Spring Cloud"></a>Spring Cloud</h3><p><code>Spring Cloud</code>可以将大的项目拆分成若干个小的模块，每一个模块都是一个独立的子系统，所有子模块组合起来完成系统总功能。</p>
+<a id="more"></a>
+<p>基础功能：<br>    1.服务治理:<code>Spring Cloud Eureka</code><br>    2.客户端负载均衡：<code>Spring Cloud Ribbon</code><br>    3.服务器容错保护：<code>Spring Cloud Hystrix</code><br>    4.声明式服务调用：<code>Spring Cloud Feign</code><br>    5.API网关服务：<code>Spring Cloud Zuul</code><br>    6.分布式配置中心：<code>Spring Cloud Config</code><br>高级功能：<br>    1.消息总线：<code>Spring Cloud Bus</code><br>    2.消息驱动的微服务：<code>Spring Cloud Stream</code><br>    3.分布式服务跟踪：<code>Spring Cloud Sleuth</code></p>
+<hr>
+<h3 id="Spring-Cloud技术栈"><a href="#Spring-Cloud技术栈" class="headerlink" title="Spring Cloud技术栈"></a>Spring Cloud技术栈</h3><p>消息中心：<code>Stream</code>、<code>Bus</code><br>配置中心：<code>Git</code>、<code>ZooKeeper</code><br>授权认证中心:<code>Security</code>、<code>JWT</code>、<code>Oauto</code><br>缓存中心：<code>Data</code><br>文档中心：<code>Swagger</code><br>服务注册与发现：<code>Eureka</code>、<code>Consul</code>、<code>Zookeeper</code><br>网关路由:<code>Zuul</code>、<code>Gateway</code><br>服务调用:<code>Ribbon</code>、<code>Feign</code>、<code>Hystrix</code><br>监控:<code>Actuctor</code>、<code>Admin</code><br>链路追踪:<code>Sleuth</code>、<code>Zipkin</code></p>
+<blockquote>
+<p>Spring Cloud 与 Dubbo 的区别：<br><strong>服务注册：Dubbo使用的ZooKeeper，注重数据一致性，抛弃高可用性；Spring Cloud使用的Eureka，注重高可用性，存在自我保护机制，允许旧数据；<br>服务调用：Dubbo使用RPC；Spring Cloud使用REST API；</strong><br>服务监控：Dubbo使用Dubbo-monitor，<strong>由Provider和Consumer统计服务调用成功次数、失败次数、平均响应时间，然后实时提交到监控中心；</strong>Spring Cloud使用Spring Boot Admin；<br>断路器：Dubbo无；Spring Cloud Hystrix；<br>服务网关：Dubbo无；Spring Cloud Zuul；<br>分布式配置：Dubbo无；Spring Cloud Config；<br>服务跟踪：Dubbo无；Spring Cloud Sleuth；<br>消息总线：Dubbo无；Spring Cloud Bus；<br>数据流：Dubbo无；Spring Cloud Stream；<br>批量任务：Dubbo无；Spring Cloud Task</p>
+</blockquote>
+<hr>
+<h3 id="IDEA中Spring-Cloud项目的创建"><a href="#IDEA中Spring-Cloud项目的创建" class="headerlink" title="IDEA中Spring Cloud项目的创建"></a>IDEA中Spring Cloud项目的创建</h3><p>未完待续………………….</p>
+]]></content>
+      <categories>
+        <category>spring系列</category>
+      </categories>
+      <tags>
+        <tag>SpringCloud</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis基础</title>
+    <url>/2019/11/27/Redis%E5%9F%BA%E7%A1%80/</url>
+    <content><![CDATA[<h3 id="Redis基础"><a href="#Redis基础" class="headerlink" title="Redis基础"></a>Redis基础</h3><a id="more"></a>
+<hr>
+<h5 id="（一）安装-amp-启动"><a href="#（一）安装-amp-启动" class="headerlink" title="（一）安装 &amp; 启动"></a>（一）安装 &amp; 启动</h5><p>&nbsp;&nbsp;&nbsp;1. <a href="https://www.cnblogs.com/kingsonfu/p/9819657.html" target="_blank" rel="noopener">阿里云安装</a><br>&nbsp;&nbsp;&nbsp;2. 在<code>Docker ubuntu</code>镜像中安装<code>Redis</code>：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker ps -a</span><br><span class="line">docker attach 241b</span><br><span class="line">apt-get update</span><br><span class="line">apt-get -y install redis-server</span><br><span class="line">&#x2F;etc&#x2F;inti.d&#x2F;redis-server restart</span><br><span class="line">redis-cli     #启动Redis客户端</span><br></pre></td></tr></table></figure>
+<p><code>Redis</code>默认端口号是<code>6379</code>，出于好奇搜了一下为什么是<code>6379</code>，然后发现了作者写的一篇文章，大致意思是说<code>6379</code>在手机9键上是MERZ，是意大利的一个女明星，作者认为她是“stupid”的代名词……然后作者还说你一定会好奇MERZ是谁，不过劝你不要上班查，因为not safe for work，然后我处于好奇搜了一下……<a href="http://blog.sina.cn/dpool/blog/s/blog_6638c1940102x3om.html" target="_blank" rel="noopener">后台硬的可以看看我搜到了什么</a>…… - -|||</p>
+<hr>
+<h5 id="（二）基础命令"><a href="#（二）基础命令" class="headerlink" title="（二）基础命令"></a>（二）基础命令</h5><blockquote>
+<p><a href="https://redis.io/commands" target="_blank" rel="noopener">所有</a><code>Redis</code><a href="https://redis.io/commands" target="_blank" rel="noopener">命令查询</a></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;1. 存储键值对：<code>SET key value</code><br>&nbsp;&nbsp;&nbsp;2. 根据键读取值：<code>GET key</code><br>&nbsp;&nbsp;&nbsp;3. 长度：<code>STRLEN key</code><br>&nbsp;&nbsp;&nbsp;4. 批量存储键值对：<code>MSET key1 value1 key2 value2</code>…<br>&nbsp;&nbsp;&nbsp;5. 根据键批量读取值：<code>MGET key1 key2</code>…<br>&nbsp;&nbsp;&nbsp;6. Hash存储：<code>HSET key field value</code><br>&nbsp;&nbsp;&nbsp;7. Hash读取：<code>HGET key field</code><br>&nbsp;&nbsp;&nbsp;8. 批量Hash存储：<code>HMSET key field1 value1 field2 value2</code>…<br>&nbsp;&nbsp;&nbsp;9. 批量Hash读取：<code>HGETALL key</code><br>&nbsp;&nbsp;&nbsp;10. 设置过期时间：<code>EXPIRE key seconds</code><br>&nbsp;&nbsp;&nbsp;11. 返回所有给定模式pattern的key：<code>KEYS pattern</code></p>
+<blockquote>
+<p>比如：<br>①<code>KEYS</code> ：返回所有<code>key；</code><br>②<code>KEYS h?llow</code>：匹配<code>hallow/hbllow/…；</code><br>③<code>KEYS hllow</code>：匹配<code>hallow/hbbllow/hccccllow/…；</code><br>④<code>KEYS h[ae]llow</code>：匹配<code>hallow/hellow</code></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;12. 基于游标的迭代器：<code>SCAN cursor [MATCH pattern] [COUNT cnt]</code></p>
+<blockquote>
+<p><code>SCAN 0</code>：<strong>新开始一次迭代，返回下一次迭代应该开始的位置；</strong></p>
+</blockquote>
+<p><code>SCAN</code>返回的结果为0时，表示迭代已经结束。</p>
+<blockquote>
+<p><code>keys</code>和<code>sca</code>n时间复杂度都是O(N)，但是不同的是<code>keys</code>会阻塞遍历整个<code>Redis</code>，在海量数据时会很严重的性能问题；而<code>scan</code>采取的是增量迭代模式，不会阻塞整个<code>Redis</code>。</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;13. 清空当前数据库中的所有key：<code>flushDB</code></p>
+<hr>
+<h5 id="三）Redis-对象类型-amp-数据结构"><a href="#三）Redis-对象类型-amp-数据结构" class="headerlink" title="三）Redis 对象类型 &amp; 数据结构"></a>三）Redis 对象类型 &amp; 数据结构</h5><p><code>Redis</code>核心对象<code>redisObject</code>：<br>&nbsp;&nbsp;&nbsp;1. 数据类型<code>type</code>：表示一个value对象具体是哪种数据类型，包括<code>string/hash/list/set/sorted set</code><br>&nbsp;&nbsp;&nbsp;2. 编码方式<code>encoding</code>：<code>raw/int/ht/zipmap/linkedlist/ziplist/intset</code><br>&nbsp;&nbsp;&nbsp;3. 数据指针<code>ptr</code><br>&nbsp;&nbsp;&nbsp;4. 虚拟内存<code>vm</code><br>&nbsp;&nbsp;&nbsp;5. 其他信息 </p>
+<h5 id="1-String：简单动态字符串SDS"><a href="#1-String：简单动态字符串SDS" class="headerlink" title="1. String：简单动态字符串SDS"></a>1. String：简单动态字符串SDS</h5>]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+        <tag>NoSql</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>IDEA Mybatis逆向生成</title>
+    <url>/2019/11/25/IDEA%20Mybatis%E9%80%86%E5%90%91%E7%94%9F%E6%88%90/</url>
+    <content><![CDATA[<h3 id="IDEA的逆向生成步骤要与Eclipse的逆向生成不一样，记录一下"><a href="#IDEA的逆向生成步骤要与Eclipse的逆向生成不一样，记录一下" class="headerlink" title="IDEA的逆向生成步骤要与Eclipse的逆向生成不一样，记录一下"></a>IDEA的逆向生成步骤要与Eclipse的逆向生成不一样，记录一下</h3><p><img src="http://5b0988e595225.cdn.sohucs.com/q_70,c_zoom,w_640/images/20190417/fe4664b0269949169461087d6553b7cc.jpeg" alt></p>
+<a id="more"></a>
+<h2 id="（一）pom文件引入依赖"><a href="#（一）pom文件引入依赖" class="headerlink" title="（一）pom文件引入依赖"></a>（一）pom文件引入依赖</h2><p>基本依赖：mysql、jdbc、mybatis、druid、web<br>注：要小心版本冲突！！<br><img src="https://i.loli.net/2020/02/23/hwQl7bZ89sduO23.png" alt><br><img src="https://i.loli.net/2020/02/23/LCKditrzpYqm1GE.png" alt></p>
+<hr>
+<h2 id="（二）application-yml"><a href="#（二）application-yml" class="headerlink" title="（二）application.yml"></a>（二）application.yml</h2><p>application中增加数据库和连接池的链接信息</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server:</span><br><span class="line">  port: 8089</span><br><span class="line"></span><br><span class="line">spring:</span><br><span class="line">  datasource:</span><br><span class="line">    driver-class-name: com.mysql.jdbc.Driver</span><br><span class="line">    url: jdbc:mysql:&#x2F;&#x2F;127.0.0.1:3307&#x2F;school</span><br><span class="line">    username: root</span><br><span class="line">    password: 数据库密码</span><br><span class="line">    type: com.alibaba.druid.pool.DruidDataSource</span><br><span class="line">    druid:</span><br><span class="line">      initial-size: 50</span><br><span class="line">      min-idle: 20</span><br><span class="line">      max-active: 100</span><br><span class="line">      max-wait: 60000</span><br><span class="line">      time-between-eviction-runs-millis: 60000</span><br><span class="line">      min-evictable-idle-time-millis: 300000</span><br><span class="line">      validation-query: SELECT 1</span><br><span class="line">      test-while-idle: true</span><br><span class="line">      test-on-borrow: false</span><br><span class="line">      test-on-return: false</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="（三）resources文件夹中增加xml文件"><a href="#（三）resources文件夹中增加xml文件" class="headerlink" title="（三）resources文件夹中增加xml文件"></a>（三）resources文件夹中增加xml文件</h2><p><img src="https://i.loli.net/2020/02/23/LCKditrzpYqm1GE.png" alt></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;!DOCTYPE generatorConfiguration</span><br><span class="line">        PUBLIC &quot;-&#x2F;&#x2F;mybatis.org&#x2F;&#x2F;DTD MyBatis Generator Configuration 1.0&#x2F;&#x2F;EN&quot;</span><br><span class="line">        &quot;http:&#x2F;&#x2F;mybatis.org&#x2F;dtd&#x2F;mybatis-generator-config_1_0.dtd&quot;&gt;</span><br><span class="line"></span><br><span class="line">&lt;generatorConfiguration&gt;</span><br><span class="line">    &lt;!-- 配置mysql 驱动jar包路径.用了绝对路径 --&gt;</span><br><span class="line">    &lt;classPathEntry</span><br><span class="line">            location&#x3D;&quot;E:&#x2F;&#x2F;mvn_repository&#x2F;reps&#x2F;mysql&#x2F;mysql-connector-java&#x2F;5.1.47&#x2F;mysql-connector-java-5.1.47.jar&quot;&#x2F;&gt;</span><br><span class="line"></span><br><span class="line">    &lt;context id&#x3D;&quot;scm_mysql_tables&quot; targetRuntime&#x3D;&quot;MyBatis3&quot;&gt;</span><br><span class="line">        &lt;!-- 防止生成的代码中有很多注释，加入下面的配置控制 --&gt;</span><br><span class="line">        &lt;commentGenerator&gt;</span><br><span class="line">            &lt;property name&#x3D;&quot;suppressAllComments&quot; value&#x3D;&quot;true&quot;&#x2F;&gt;</span><br><span class="line">            &lt;property name&#x3D;&quot;suppressDate&quot; value&#x3D;&quot;true&quot;&#x2F;&gt;</span><br><span class="line">        &lt;&#x2F;commentGenerator&gt;</span><br><span class="line"></span><br><span class="line">        &lt;!-- 数据库连接 --&gt;</span><br><span class="line">        &lt;jdbcConnection driverClass&#x3D;&quot;com.mysql.jdbc.Driver&quot;</span><br><span class="line">                        connectionURL&#x3D;&quot;jdbc:mysql:&#x2F;&#x2F;localhost:3307&#x2F;school?characterEncoding&#x3D;UTF-8&quot;</span><br><span class="line">                        userId&#x3D;&quot;root&quot;</span><br><span class="line">                        password&#x3D;&quot;密码&quot;&gt;</span><br><span class="line">        &lt;&#x2F;jdbcConnection&gt;</span><br><span class="line"></span><br><span class="line">        &lt;javaTypeResolver&gt;</span><br><span class="line">            &lt;property name&#x3D;&quot;forceBigDecimals&quot; value&#x3D;&quot;false&quot;&#x2F;&gt;</span><br><span class="line">        &lt;&#x2F;javaTypeResolver&gt;</span><br><span class="line"></span><br><span class="line">        &lt;!-- 配置 pojo 实体类文件所在项目及包路径 --&gt;</span><br><span class="line">        &lt;javaModelGenerator targetPackage&#x3D;&quot;com.xdclass.demo.pojo&quot;</span><br><span class="line">                            targetProject&#x3D;&quot;src&#x2F;main&#x2F;java&quot;&gt;</span><br><span class="line">            &lt;property name&#x3D;&quot;enableSubPackages&quot; value&#x3D;&quot;true&quot;&#x2F;&gt;</span><br><span class="line">            &lt;property name&#x3D;&quot;trimStrings&quot; value&#x3D;&quot;true&quot;&#x2F;&gt;</span><br><span class="line">        &lt;&#x2F;javaModelGenerator&gt;</span><br><span class="line">        &lt;!-- 配置Mapper接口所在的项目及包路径 --&gt;</span><br><span class="line">        &lt;sqlMapGenerator targetPackage&#x3D;&quot;com.xdclass.demo.mapper&quot;</span><br><span class="line">                         targetProject&#x3D;&quot;src&#x2F;main&#x2F;java&quot;&gt;</span><br><span class="line">            &lt;property name&#x3D;&quot;enableSubPackages&quot; value&#x3D;&quot;true&quot;&#x2F;&gt;</span><br><span class="line">        &lt;&#x2F;sqlMapGenerator&gt;</span><br><span class="line">        &lt;!-- 配置常规功能单元（工具类）所在的项目及包路径，包括xml文件等插件 --&gt;</span><br><span class="line">        &lt;javaClientGenerator type&#x3D;&quot;XMLMAPPER&quot;</span><br><span class="line">                             targetPackage&#x3D;&quot;com.xdclass.demo.mapper&quot;</span><br><span class="line">                             targetProject&#x3D;&quot;src&#x2F;main&#x2F;java&quot;&gt;</span><br><span class="line">            &lt;property name&#x3D;&quot;enableSubPackages&quot; value&#x3D;&quot;true&quot;&#x2F;&gt;</span><br><span class="line">        &lt;&#x2F;javaClientGenerator&gt;</span><br><span class="line">        &lt;!-- 数据表进行生成操作 schema:相当于库名; tableName:表名;</span><br><span class="line">            domainObjectName:对应的DO</span><br><span class="line">        --&gt;</span><br><span class="line">        &lt;table tableName&#x3D;&quot;%&quot;&gt;</span><br><span class="line">        &lt;&#x2F;table&gt;</span><br><span class="line">    &lt;&#x2F;context&gt;</span><br><span class="line">&lt;&#x2F;generatorConfiguration&gt;</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="（四）pom文件增加build依赖"><a href="#（四）pom文件增加build依赖" class="headerlink" title="（四）pom文件增加build依赖"></a>（四）pom文件增加build依赖</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;build&gt;</span><br><span class="line">    &lt;plugins&gt;</span><br><span class="line">        &lt;plugin&gt;</span><br><span class="line">            &lt;groupId&gt;org.mybatis.generator&lt;&#x2F;groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;mybatis-generator-maven-plugin&lt;&#x2F;artifactId&gt;</span><br><span class="line">            &lt;version&gt;1.3.5&lt;&#x2F;version&gt;</span><br><span class="line">            &lt;configuration&gt;</span><br><span class="line">                &lt;verbose&gt;true&lt;&#x2F;verbose&gt;</span><br><span class="line">                &lt;overwrite&gt;true&lt;&#x2F;overwrite&gt;</span><br><span class="line">            &lt;&#x2F;configuration&gt;</span><br><span class="line">        &lt;&#x2F;plugin&gt;</span><br><span class="line">    &lt;&#x2F;plugins&gt;</span><br><span class="line">    &lt;resources&gt;</span><br><span class="line">        &lt;resource&gt;</span><br><span class="line">            &lt;directory&gt;src&#x2F;main&#x2F;java&lt;&#x2F;directory&gt;</span><br><span class="line">            &lt;includes&gt;</span><br><span class="line">                &lt;include&gt;**&#x2F;*.xml&lt;&#x2F;include&gt;</span><br><span class="line">            &lt;&#x2F;includes&gt;</span><br><span class="line">        &lt;&#x2F;resource&gt;</span><br><span class="line">    &lt;&#x2F;resources&gt;</span><br><span class="line">&lt;&#x2F;build&gt;</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="（五）使用maven自动生成"><a href="#（五）使用maven自动生成" class="headerlink" title="（五）使用maven自动生成"></a>（五）使用maven自动生成</h2><p><img src="https://i.loli.net/2020/02/23/G5yNkOUqwEJXigZ.png" alt><br>控制台出现<br><img src="https://i.loli.net/2020/02/23/aI1dGmy98UAi3qC.png" alt><br>即生成成功<br>注：生成的实体类是没加序列化，不要忘记implements Serializable。</p>
+]]></content>
+      <categories>
+        <category>java</category>
+      </categories>
+      <tags>
+        <tag>mybatis</tag>
+        <tag>IDEA</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>GitHub小技巧</title>
+    <url>/2019/11/22/GitHub%E5%B0%8F%E6%8A%80%E5%B7%A7/</url>
+    <content><![CDATA[<p><img src="http://gss0.baidu.com/94o3dSag_xI4khGko9WTAnF6hhy/zhidao/pic/item/bba1cd11728b471049731910c5cec3fdfd03238a.jpg" alt></p>
+<a id="more"></a>
+<h3 id="GitHub小技巧"><a href="#GitHub小技巧" class="headerlink" title="GitHub小技巧"></a>GitHub小技巧</h3><hr>
+<h2 id="（一）快捷键查看：shift"><a href="#（一）快捷键查看：shift" class="headerlink" title="（一）快捷键查看：shift + ?"></a>（一）快捷键查看：shift + ?</h2><p>在任意界面输入shift + ?，可以显示快捷键。</p>
+<hr>
+<h2 id="（二）查看自己项目的访问数据：Insights-Traffic"><a href="#（二）查看自己项目的访问数据：Insights-Traffic" class="headerlink" title="（二）查看自己项目的访问数据：Insights - Traffic"></a>（二）查看自己项目的访问数据：Insights - Traffic</h2><p>在自己的项目下，点击Insights-Traffic，里面有Referring sites（代表大家从什么网页来到你的项目）和Popular content（代表大家经常看你项目的什么文件）。<br><img src="https://dragonbaby308.oss-cn-hangzhou.aliyuncs.com/git/github/shortcut.png" alt></p>
+<hr>
+<h2 id="（三）编辑代码"><a href="#（三）编辑代码" class="headerlink" title="（三）编辑代码"></a>（三）编辑代码</h2><p>在查看任意文件时，右上角会有一个小铅笔的标识。<br><img src="https://dragonbaby308.oss-cn-hangzhou.aliyuncs.com/git/github/pen.png" alt><br>点击小铅笔就可以直接编辑文件，编辑完成后，直接在页面上点击Propose File Change，Github就会为你fork这个仓库，创建一个pull request，节省了在本地fork -&gt; pull -&gt; 修改 -&gt; push -&gt; 创建PR的过程。</p>
+<hr>
+<h2 id="（四）趋势图——https-octoverse-github-com"><a href="#（四）趋势图——https-octoverse-github-com" class="headerlink" title="（四）趋势图——https://octoverse.github.com/"></a>（四）趋势图——<a href="https://octoverse.github.com/" target="_blank" rel="noopener">https://octoverse.github.com/</a></h2><p>Github语言趋势图：<a href="https://octoverse.github.com/" target="_blank" rel="noopener">https://octoverse.github.com/</a></p>
+<hr>
+<h2 id="（五）精确搜索项目"><a href="#（五）精确搜索项目" class="headerlink" title="（五）精确搜索项目"></a>（五）精确搜索项目</h2><p>in:name keyWord：项目名中含有keyWord<br>in:readme keyWord：项目README.md中含有keyWord<br>in:description keyWord：项目描述中含有keyWord<br>stars:&gt;N：星星数量大于N<br>language:Golang：语言限定为Golang语言<br>pushed:&gt;2019-06-06：最后一次提交时间晚于2019-06-06<br>比如我想搜索Golang语言微服务项目，最后一次提交时间要晚于2019-06-06，星星数量大于1000个：<br>in:description 微服务 language:go pushed:&gt;2019-06-06 stars:&gt;1000</p>
+]]></content>
+      <categories>
+        <category>其他</category>
+      </categories>
+      <tags>
+        <tag>GitHub</tag>
+        <tag>其他</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>vim使用教程</title>
+    <url>/2019/11/04/vim%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B/</url>
+    <content><![CDATA[<h2 id="vim使用教程"><a href="#vim使用教程" class="headerlink" title="vim使用教程"></a>vim使用教程</h2><p>本文先概述什么是vim以及为什么要学习vim，然后介绍vim的基础操作（包括normal模式、编辑模式、命令模式、可视化模式这4个模式，以及3个模式下的一些基础命令），最后介绍如何通过插件使你的vim赏心悦目。</p>
+<a id="more"></a>
+<hr>
+<h3 id="vim简介"><a href="#vim简介" class="headerlink" title="vim简介"></a>vim简介</h3><h5 id="1-什么是vim？"><a href="#1-什么是vim？" class="headerlink" title="1.什么是vim？"></a>1.什么是vim？</h5><p>vim是Linux/Unix下的文本编辑器，类似于记事本，是vi的改进版本，纯键盘友好。</p>
+<h5 id="2-为什么要学习vim？"><a href="#2-为什么要学习vim？" class="headerlink" title="2.为什么要学习vim？"></a>2.为什么要学习vim？</h5><p>后端免不了和服务器打交道，而服务器往往需要24 x 7 x 365，所以稳定的Linux服务器成了首选。在Linux服务器上没有记事本，只有vim文本编辑器；且服务器往往不配备鼠标，所以纯键盘友好的vim编辑器是最佳选择。简单来说，不会基础的vim操作，在Linux服务器上寸步难行。</p>
+<h5 id="3-命令帮助"><a href="#3-命令帮助" class="headerlink" title="3.命令帮助"></a>3.命令帮助</h5><p><code>:help commandName</code></p>
+<hr>
+<h3 id="vim的4个模式及基本命令"><a href="#vim的4个模式及基本命令" class="headerlink" title="vim的4个模式及基本命令"></a>vim的4个模式及基本命令</h3><h5 id="1-normal模式"><a href="#1-normal模式" class="headerlink" title="1.normal模式"></a>1.normal模式</h5><p>normal模式是vim的默认模式，也就是通过vim filename命令打开文件时最初始的模式，只可以浏览，不可用编辑。如图：<br><img src="https://tva1.sinaimg.cn/large/007rAy9hgy1g3h0s4g2lwj30b00net8r.jpg" alt><br>在编辑模式/命令模式下，想要退回到normal模式，只需要按<code>esc</code>或<code>ctrl+[</code> 即可。<br>常用命令有:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 移动</span><br><span class="line">w           #word，移动到下一个单词开头</span><br><span class="line">b           #backward，移动到上一个单词开头</span><br><span class="line">0           #移动到行首</span><br><span class="line">$           #移动到行尾</span><br><span class="line">gg          #移动到文件开头</span><br><span class="line">G           # 【移动到文件结尾】！！！</span><br><span class="line">ctrl + u    #向上翻页</span><br><span class="line">ctrl + f    #向下翻页</span><br><span class="line">zz          #将当前行置到屏幕中间</span><br><span class="line"></span><br><span class="line"># 删除</span><br><span class="line">x           #删除某个字符</span><br><span class="line">dd          #删除行</span><br><span class="line"></span><br><span class="line"># 修改</span><br><span class="line">r           #replace，r后接字符，可以快速将光标处字符替换为r后的字符</span><br><span class="line">s           #substitute，删除光标处字符，并进入插入模式</span><br><span class="line">C           #删除整行，并进入插入模式</span><br><span class="line"></span><br><span class="line"># 查找</span><br><span class="line">&#x2F;           #查找&#x2F;后的字符，按n可以向后匹配</span><br><span class="line"></span><br><span class="line">u           #undo，回退</span><br></pre></td></tr></table></figure>
+<h5 id="2-编辑模式"><a href="#2-编辑模式" class="headerlink" title="2.编辑模式"></a>2.编辑模式</h5><p>在normal模式下通过如下命令进入编辑模式：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">gi  #快速回到上次编辑位置</span><br><span class="line">i   #insert，在光标后插入</span><br><span class="line">a   #append，在光标前插入</span><br><span class="line">o   #open a line below，在光标下一行插入</span><br><span class="line">I   #在当前行末尾插入</span><br><span class="line">A   #在当前行开头插入</span><br><span class="line">O   #OPEN A LINE ABOVE，在光标上一行插入</span><br></pre></td></tr></table></figure>
+<p>编辑模式下的常用vim命令：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 删除</span><br><span class="line">ctrl + h    #删除上一个字符</span><br><span class="line">ctrl + w    #删除上一个单词</span><br><span class="line">ctrl + h    #删除上一行</span><br></pre></td></tr></table></figure>
+<h5 id="3-命令模式"><a href="#3-命令模式" class="headerlink" title="3.命令模式"></a>3.命令模式</h5><p>在normal模式/编辑模式下通过命令:进入，键入命令即可：<br><code>wq</code>：write quit，保存退出<br><code>set nu</code> ：set number，设置行号<br><img src="https://tva1.sinaimg.cn/large/007rAy9hgy1g3h168bxb8j30ar0mnt8o.jpg" alt><br><code>sp</code>：split，水平分屏。如需退出，使用:q即可。如需切换屏幕，使用<code>ctrl + ww</code>即可。<br><img src="https://tva1.sinaimg.cn/large/007rAy9hgy1g3h19gcp6gj30e10mj0sp.jpg" alt><br><code>%s/str1/str2/g</code>：全局替换，将字符串str1替换为str2<br><code>syntax on</code>：开启语法高亮</p>
+<h5 id="4-可视化模式"><a href="#4-可视化模式" class="headerlink" title="4.可视化模式"></a>4.可视化模式</h5><p>为了方便<strong>选取文本</strong>，vim引入类可视化（visual）模式，该模式下可以进行<strong>全局操作</strong>和<strong>块状选择</strong>。在normal模式下通过执行命令：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">v         #行内选择字符</span><br><span class="line">V         #选中一行</span><br><span class="line">ctrl + v  #Visual Block，块状选择</span><br><span class="line">d         #delete，删除</span><br><span class="line">y         #yank，复制</span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="vim配置文件-vimrc"><a href="#vim配置文件-vimrc" class="headerlink" title="vim配置文件~/.vimrc"></a>vim配置文件<code>~/.vimrc</code></h3><p>vim配置文件是用户目录（~）下的隐藏文件（.），通过命令<code>vim ~/.vimrc</code>即可打开，可以对vim进行一系列<strong>持久化</strong>的配置。如：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;vim注释采用单个引号</span><br><span class="line">set backspace&#x3D;2         &quot;可随时用退格键删除</span><br><span class="line">set nu 					&quot;设置行号，nu(mber)</span><br><span class="line">set cursorline  		&quot;光标所在行高亮</span><br><span class="line">set ruler				&quot;在状态栏显示光标的当前位置</span><br><span class="line">set showmode 			&quot;在底部显示，当前处于命令模式&#x2F;插入模式</span><br><span class="line">set showcmd				&quot;命令模式下，在底部显示当前键入的命令</span><br><span class="line">set showmatch			&quot;光标遇到圆括号、方括号、大括号时，自动高亮显示匹配的另一个括号</span><br><span class="line">set incsearch			&quot;输入模式搜索时，每输入一个字符，就自动跳到第一个匹配的结果</span><br><span class="line">set hlsearch 			&quot;高亮（high light）搜索</span><br><span class="line">set foldmethod&#x3D;indent 	&quot;设置折叠方式</span><br><span class="line">set wrap 				&quot;自动拆行，太长的行分为几行显示</span><br><span class="line">set visualbell  		&quot;出错时发出视觉提示，一般是屏幕闪烁</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Vim</tag>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>java基础知识</title>
-    <url>/2020/02/23/java%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</url>
+    <url>/2019/10/28/java%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</url>
     <content><![CDATA[<h3 id="Java基础知识"><a href="#Java基础知识" class="headerlink" title="Java基础知识"></a>Java基础知识</h3><h5 id="1-Constructor可以重写吗？"><a href="#1-Constructor可以重写吗？" class="headerlink" title="1.Constructor可以重写吗？"></a>1.<code>Constructor</code>可以重写吗？</h5><p><code>Constructor</code>不允许重写<code>@Override</code>，但是可以重载<code>（overload）</code>。</p>
 <a id="more"></a>
 <hr>
@@ -48,113 +251,6 @@
       </categories>
       <tags>
         <tag>java</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>springcloud</title>
-    <url>/2020/02/23/springcloud/</url>
-    <content><![CDATA[<h3 id="Spring-Cloud"><a href="#Spring-Cloud" class="headerlink" title="Spring Cloud"></a>Spring Cloud</h3><p><code>Spring Cloud</code>可以将大的项目拆分成若干个小的模块，每一个模块都是一个独立的子系统，所有子模块组合起来完成系统总功能。</p>
-<a id="more"></a>
-<p>基础功能：<br>    1.服务治理:<code>Spring Cloud Eureka</code><br>    2.客户端负载均衡：<code>Spring Cloud Ribbon</code><br>    3.服务器容错保护：<code>Spring Cloud Hystrix</code><br>    4.声明式服务调用：<code>Spring Cloud Feign</code><br>    5.API网关服务：<code>Spring Cloud Zuul</code><br>    6.分布式配置中心：<code>Spring Cloud Config</code><br>高级功能：<br>    1.消息总线：<code>Spring Cloud Bus</code><br>    2.消息驱动的微服务：<code>Spring Cloud Stream</code><br>    3.分布式服务跟踪：<code>Spring Cloud Sleuth</code></p>
-<hr>
-<h3 id="Spring-Cloud技术栈"><a href="#Spring-Cloud技术栈" class="headerlink" title="Spring Cloud技术栈"></a>Spring Cloud技术栈</h3><p>消息中心：<code>Stream</code>、<code>Bus</code><br>配置中心：<code>Git</code>、<code>ZooKeeper</code><br>授权认证中心:<code>Security</code>、<code>JWT</code>、<code>Oauto</code><br>缓存中心：<code>Data</code><br>文档中心：<code>Swagger</code><br>服务注册与发现：<code>Eureka</code>、<code>Consul</code>、<code>Zookeeper</code><br>网关路由:<code>Zuul</code>、<code>Gateway</code><br>服务调用:<code>Ribbon</code>、<code>Feign</code>、<code>Hystrix</code><br>监控:<code>Actuctor</code>、<code>Admin</code><br>链路追踪:<code>Sleuth</code>、<code>Zipkin</code></p>
-<blockquote>
-<p>Spring Cloud 与 Dubbo 的区别：<br><strong>服务注册：Dubbo使用的ZooKeeper，注重数据一致性，抛弃高可用性；Spring Cloud使用的Eureka，注重高可用性，存在自我保护机制，允许旧数据；<br>服务调用：Dubbo使用RPC；Spring Cloud使用REST API；</strong><br>服务监控：Dubbo使用Dubbo-monitor，<strong>由Provider和Consumer统计服务调用成功次数、失败次数、平均响应时间，然后实时提交到监控中心；</strong>Spring Cloud使用Spring Boot Admin；<br>断路器：Dubbo无；Spring Cloud Hystrix；<br>服务网关：Dubbo无；Spring Cloud Zuul；<br>分布式配置：Dubbo无；Spring Cloud Config；<br>服务跟踪：Dubbo无；Spring Cloud Sleuth；<br>消息总线：Dubbo无；Spring Cloud Bus；<br>数据流：Dubbo无；Spring Cloud Stream；<br>批量任务：Dubbo无；Spring Cloud Task</p>
-</blockquote>
-<hr>
-<h3 id="IDEA中Spring-Cloud项目的创建"><a href="#IDEA中Spring-Cloud项目的创建" class="headerlink" title="IDEA中Spring Cloud项目的创建"></a>IDEA中Spring Cloud项目的创建</h3><p>未完待续………………….</p>
-]]></content>
-      <categories>
-        <category>spring系列</category>
-      </categories>
-      <tags>
-        <tag>SpringCloud</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>vim使用教程</title>
-    <url>/2020/02/23/vim%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B/</url>
-    <content><![CDATA[<h2 id="vim使用教程"><a href="#vim使用教程" class="headerlink" title="vim使用教程"></a>vim使用教程</h2><p>本文先概述什么是vim以及为什么要学习vim，然后介绍vim的基础操作（包括normal模式、编辑模式、命令模式、可视化模式这4个模式，以及3个模式下的一些基础命令），最后介绍如何通过插件使你的vim赏心悦目。</p>
-<a id="more"></a>
-<hr>
-<h3 id="vim简介"><a href="#vim简介" class="headerlink" title="vim简介"></a>vim简介</h3><h5 id="1-什么是vim？"><a href="#1-什么是vim？" class="headerlink" title="1.什么是vim？"></a>1.什么是vim？</h5><p>vim是Linux/Unix下的文本编辑器，类似于记事本，是vi的改进版本，纯键盘友好。</p>
-<h5 id="2-为什么要学习vim？"><a href="#2-为什么要学习vim？" class="headerlink" title="2.为什么要学习vim？"></a>2.为什么要学习vim？</h5><p>后端免不了和服务器打交道，而服务器往往需要24 x 7 x 365，所以稳定的Linux服务器成了首选。在Linux服务器上没有记事本，只有vim文本编辑器；且服务器往往不配备鼠标，所以纯键盘友好的vim编辑器是最佳选择。简单来说，不会基础的vim操作，在Linux服务器上寸步难行。</p>
-<h5 id="3-命令帮助"><a href="#3-命令帮助" class="headerlink" title="3.命令帮助"></a>3.命令帮助</h5><p><code>:help commandName</code></p>
-<hr>
-<h3 id="vim的4个模式及基本命令"><a href="#vim的4个模式及基本命令" class="headerlink" title="vim的4个模式及基本命令"></a>vim的4个模式及基本命令</h3><h5 id="1-normal模式"><a href="#1-normal模式" class="headerlink" title="1.normal模式"></a>1.normal模式</h5><p>normal模式是vim的默认模式，也就是通过vim filename命令打开文件时最初始的模式，只可以浏览，不可用编辑。如图：<br><img src="https://tva1.sinaimg.cn/large/007rAy9hgy1g3h0s4g2lwj30b00net8r.jpg" alt><br>在编辑模式/命令模式下，想要退回到normal模式，只需要按<code>esc</code>或<code>ctrl+[</code> 即可。<br>常用命令有:</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 移动</span><br><span class="line">w           #word，移动到下一个单词开头</span><br><span class="line">b           #backward，移动到上一个单词开头</span><br><span class="line">0           #移动到行首</span><br><span class="line">$           #移动到行尾</span><br><span class="line">gg          #移动到文件开头</span><br><span class="line">G           # 【移动到文件结尾】！！！</span><br><span class="line">ctrl + u    #向上翻页</span><br><span class="line">ctrl + f    #向下翻页</span><br><span class="line">zz          #将当前行置到屏幕中间</span><br><span class="line"></span><br><span class="line"># 删除</span><br><span class="line">x           #删除某个字符</span><br><span class="line">dd          #删除行</span><br><span class="line"></span><br><span class="line"># 修改</span><br><span class="line">r           #replace，r后接字符，可以快速将光标处字符替换为r后的字符</span><br><span class="line">s           #substitute，删除光标处字符，并进入插入模式</span><br><span class="line">C           #删除整行，并进入插入模式</span><br><span class="line"></span><br><span class="line"># 查找</span><br><span class="line">&#x2F;           #查找&#x2F;后的字符，按n可以向后匹配</span><br><span class="line"></span><br><span class="line">u           #undo，回退</span><br></pre></td></tr></table></figure>
-<h5 id="2-编辑模式"><a href="#2-编辑模式" class="headerlink" title="2.编辑模式"></a>2.编辑模式</h5><p>在normal模式下通过如下命令进入编辑模式：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">gi  #快速回到上次编辑位置</span><br><span class="line">i   #insert，在光标后插入</span><br><span class="line">a   #append，在光标前插入</span><br><span class="line">o   #open a line below，在光标下一行插入</span><br><span class="line">I   #在当前行末尾插入</span><br><span class="line">A   #在当前行开头插入</span><br><span class="line">O   #OPEN A LINE ABOVE，在光标上一行插入</span><br></pre></td></tr></table></figure>
-<p>编辑模式下的常用vim命令：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 删除</span><br><span class="line">ctrl + h    #删除上一个字符</span><br><span class="line">ctrl + w    #删除上一个单词</span><br><span class="line">ctrl + h    #删除上一行</span><br></pre></td></tr></table></figure>
-<h5 id="3-命令模式"><a href="#3-命令模式" class="headerlink" title="3.命令模式"></a>3.命令模式</h5><p>在normal模式/编辑模式下通过命令:进入，键入命令即可：<br><code>wq</code>：write quit，保存退出<br><code>set nu</code> ：set number，设置行号<br><img src="https://tva1.sinaimg.cn/large/007rAy9hgy1g3h168bxb8j30ar0mnt8o.jpg" alt><br><code>sp</code>：split，水平分屏。如需退出，使用:q即可。如需切换屏幕，使用<code>ctrl + ww</code>即可。<br><img src="https://tva1.sinaimg.cn/large/007rAy9hgy1g3h19gcp6gj30e10mj0sp.jpg" alt><br><code>%s/str1/str2/g</code>：全局替换，将字符串str1替换为str2<br><code>syntax on</code>：开启语法高亮</p>
-<h5 id="4-可视化模式"><a href="#4-可视化模式" class="headerlink" title="4.可视化模式"></a>4.可视化模式</h5><p>为了方便<strong>选取文本</strong>，vim引入类可视化（visual）模式，该模式下可以进行<strong>全局操作</strong>和<strong>块状选择</strong>。在normal模式下通过执行命令：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">v         #行内选择字符</span><br><span class="line">V         #选中一行</span><br><span class="line">ctrl + v  #Visual Block，块状选择</span><br><span class="line">d         #delete，删除</span><br><span class="line">y         #yank，复制</span><br></pre></td></tr></table></figure>
-<hr>
-<h3 id="vim配置文件-vimrc"><a href="#vim配置文件-vimrc" class="headerlink" title="vim配置文件~/.vimrc"></a>vim配置文件<code>~/.vimrc</code></h3><p>vim配置文件是用户目录（~）下的隐藏文件（.），通过命令<code>vim ~/.vimrc</code>即可打开，可以对vim进行一系列<strong>持久化</strong>的配置。如：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;vim注释采用单个引号</span><br><span class="line">set backspace&#x3D;2         &quot;可随时用退格键删除</span><br><span class="line">set nu 					&quot;设置行号，nu(mber)</span><br><span class="line">set cursorline  		&quot;光标所在行高亮</span><br><span class="line">set ruler				&quot;在状态栏显示光标的当前位置</span><br><span class="line">set showmode 			&quot;在底部显示，当前处于命令模式&#x2F;插入模式</span><br><span class="line">set showcmd				&quot;命令模式下，在底部显示当前键入的命令</span><br><span class="line">set showmatch			&quot;光标遇到圆括号、方括号、大括号时，自动高亮显示匹配的另一个括号</span><br><span class="line">set incsearch			&quot;输入模式搜索时，每输入一个字符，就自动跳到第一个匹配的结果</span><br><span class="line">set hlsearch 			&quot;高亮（high light）搜索</span><br><span class="line">set foldmethod&#x3D;indent 	&quot;设置折叠方式</span><br><span class="line">set wrap 				&quot;自动拆行，太长的行分为几行显示</span><br><span class="line">set visualbell  		&quot;出错时发出视觉提示，一般是屏幕闪烁</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-
-]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Vim</tag>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>IDEA Mybatis逆向生成</title>
-    <url>/2019/11/25/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</url>
-    <content><![CDATA[<h3 id="IDEA的逆向生成步骤要与Eclipse的逆向生成不一样，记录一下"><a href="#IDEA的逆向生成步骤要与Eclipse的逆向生成不一样，记录一下" class="headerlink" title="IDEA的逆向生成步骤要与Eclipse的逆向生成不一样，记录一下"></a>IDEA的逆向生成步骤要与Eclipse的逆向生成不一样，记录一下</h3><p><img src="http://5b0988e595225.cdn.sohucs.com/q_70,c_zoom,w_640/images/20190417/fe4664b0269949169461087d6553b7cc.jpeg" alt></p>
-<a id="more"></a>
-<h2 id="（一）pom文件引入依赖"><a href="#（一）pom文件引入依赖" class="headerlink" title="（一）pom文件引入依赖"></a>（一）pom文件引入依赖</h2><p>基本依赖：mysql、jdbc、mybatis、druid、web<br>注：要小心版本冲突！！<br><img src="https://i.loli.net/2020/02/23/hwQl7bZ89sduO23.png" alt><br><img src="https://i.loli.net/2020/02/23/LCKditrzpYqm1GE.png" alt></p>
-<hr>
-<h2 id="（二）application-yml"><a href="#（二）application-yml" class="headerlink" title="（二）application.yml"></a>（二）application.yml</h2><p>application中增加数据库和连接池的链接信息</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server:</span><br><span class="line">  port: 8089</span><br><span class="line"></span><br><span class="line">spring:</span><br><span class="line">  datasource:</span><br><span class="line">    driver-class-name: com.mysql.jdbc.Driver</span><br><span class="line">    url: jdbc:mysql:&#x2F;&#x2F;127.0.0.1:3307&#x2F;school</span><br><span class="line">    username: root</span><br><span class="line">    password: 数据库密码</span><br><span class="line">    type: com.alibaba.druid.pool.DruidDataSource</span><br><span class="line">    druid:</span><br><span class="line">      initial-size: 50</span><br><span class="line">      min-idle: 20</span><br><span class="line">      max-active: 100</span><br><span class="line">      max-wait: 60000</span><br><span class="line">      time-between-eviction-runs-millis: 60000</span><br><span class="line">      min-evictable-idle-time-millis: 300000</span><br><span class="line">      validation-query: SELECT 1</span><br><span class="line">      test-while-idle: true</span><br><span class="line">      test-on-borrow: false</span><br><span class="line">      test-on-return: false</span><br></pre></td></tr></table></figure>
-<hr>
-<h2 id="（三）resources文件夹中增加xml文件"><a href="#（三）resources文件夹中增加xml文件" class="headerlink" title="（三）resources文件夹中增加xml文件"></a>（三）resources文件夹中增加xml文件</h2><p><img src="https://i.loli.net/2020/02/23/LCKditrzpYqm1GE.png" alt></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;!DOCTYPE generatorConfiguration</span><br><span class="line">        PUBLIC &quot;-&#x2F;&#x2F;mybatis.org&#x2F;&#x2F;DTD MyBatis Generator Configuration 1.0&#x2F;&#x2F;EN&quot;</span><br><span class="line">        &quot;http:&#x2F;&#x2F;mybatis.org&#x2F;dtd&#x2F;mybatis-generator-config_1_0.dtd&quot;&gt;</span><br><span class="line"></span><br><span class="line">&lt;generatorConfiguration&gt;</span><br><span class="line">    &lt;!-- 配置mysql 驱动jar包路径.用了绝对路径 --&gt;</span><br><span class="line">    &lt;classPathEntry</span><br><span class="line">            location&#x3D;&quot;E:&#x2F;&#x2F;mvn_repository&#x2F;reps&#x2F;mysql&#x2F;mysql-connector-java&#x2F;5.1.47&#x2F;mysql-connector-java-5.1.47.jar&quot;&#x2F;&gt;</span><br><span class="line"></span><br><span class="line">    &lt;context id&#x3D;&quot;scm_mysql_tables&quot; targetRuntime&#x3D;&quot;MyBatis3&quot;&gt;</span><br><span class="line">        &lt;!-- 防止生成的代码中有很多注释，加入下面的配置控制 --&gt;</span><br><span class="line">        &lt;commentGenerator&gt;</span><br><span class="line">            &lt;property name&#x3D;&quot;suppressAllComments&quot; value&#x3D;&quot;true&quot;&#x2F;&gt;</span><br><span class="line">            &lt;property name&#x3D;&quot;suppressDate&quot; value&#x3D;&quot;true&quot;&#x2F;&gt;</span><br><span class="line">        &lt;&#x2F;commentGenerator&gt;</span><br><span class="line"></span><br><span class="line">        &lt;!-- 数据库连接 --&gt;</span><br><span class="line">        &lt;jdbcConnection driverClass&#x3D;&quot;com.mysql.jdbc.Driver&quot;</span><br><span class="line">                        connectionURL&#x3D;&quot;jdbc:mysql:&#x2F;&#x2F;localhost:3307&#x2F;school?characterEncoding&#x3D;UTF-8&quot;</span><br><span class="line">                        userId&#x3D;&quot;root&quot;</span><br><span class="line">                        password&#x3D;&quot;密码&quot;&gt;</span><br><span class="line">        &lt;&#x2F;jdbcConnection&gt;</span><br><span class="line"></span><br><span class="line">        &lt;javaTypeResolver&gt;</span><br><span class="line">            &lt;property name&#x3D;&quot;forceBigDecimals&quot; value&#x3D;&quot;false&quot;&#x2F;&gt;</span><br><span class="line">        &lt;&#x2F;javaTypeResolver&gt;</span><br><span class="line"></span><br><span class="line">        &lt;!-- 配置 pojo 实体类文件所在项目及包路径 --&gt;</span><br><span class="line">        &lt;javaModelGenerator targetPackage&#x3D;&quot;com.xdclass.demo.pojo&quot;</span><br><span class="line">                            targetProject&#x3D;&quot;src&#x2F;main&#x2F;java&quot;&gt;</span><br><span class="line">            &lt;property name&#x3D;&quot;enableSubPackages&quot; value&#x3D;&quot;true&quot;&#x2F;&gt;</span><br><span class="line">            &lt;property name&#x3D;&quot;trimStrings&quot; value&#x3D;&quot;true&quot;&#x2F;&gt;</span><br><span class="line">        &lt;&#x2F;javaModelGenerator&gt;</span><br><span class="line">        &lt;!-- 配置Mapper接口所在的项目及包路径 --&gt;</span><br><span class="line">        &lt;sqlMapGenerator targetPackage&#x3D;&quot;com.xdclass.demo.mapper&quot;</span><br><span class="line">                         targetProject&#x3D;&quot;src&#x2F;main&#x2F;java&quot;&gt;</span><br><span class="line">            &lt;property name&#x3D;&quot;enableSubPackages&quot; value&#x3D;&quot;true&quot;&#x2F;&gt;</span><br><span class="line">        &lt;&#x2F;sqlMapGenerator&gt;</span><br><span class="line">        &lt;!-- 配置常规功能单元（工具类）所在的项目及包路径，包括xml文件等插件 --&gt;</span><br><span class="line">        &lt;javaClientGenerator type&#x3D;&quot;XMLMAPPER&quot;</span><br><span class="line">                             targetPackage&#x3D;&quot;com.xdclass.demo.mapper&quot;</span><br><span class="line">                             targetProject&#x3D;&quot;src&#x2F;main&#x2F;java&quot;&gt;</span><br><span class="line">            &lt;property name&#x3D;&quot;enableSubPackages&quot; value&#x3D;&quot;true&quot;&#x2F;&gt;</span><br><span class="line">        &lt;&#x2F;javaClientGenerator&gt;</span><br><span class="line">        &lt;!-- 数据表进行生成操作 schema:相当于库名; tableName:表名;</span><br><span class="line">            domainObjectName:对应的DO</span><br><span class="line">        --&gt;</span><br><span class="line">        &lt;table tableName&#x3D;&quot;%&quot;&gt;</span><br><span class="line">        &lt;&#x2F;table&gt;</span><br><span class="line">    &lt;&#x2F;context&gt;</span><br><span class="line">&lt;&#x2F;generatorConfiguration&gt;</span><br></pre></td></tr></table></figure>
-<hr>
-<h2 id="（四）pom文件增加build依赖"><a href="#（四）pom文件增加build依赖" class="headerlink" title="（四）pom文件增加build依赖"></a>（四）pom文件增加build依赖</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;build&gt;</span><br><span class="line">    &lt;plugins&gt;</span><br><span class="line">        &lt;plugin&gt;</span><br><span class="line">            &lt;groupId&gt;org.mybatis.generator&lt;&#x2F;groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;mybatis-generator-maven-plugin&lt;&#x2F;artifactId&gt;</span><br><span class="line">            &lt;version&gt;1.3.5&lt;&#x2F;version&gt;</span><br><span class="line">            &lt;configuration&gt;</span><br><span class="line">                &lt;verbose&gt;true&lt;&#x2F;verbose&gt;</span><br><span class="line">                &lt;overwrite&gt;true&lt;&#x2F;overwrite&gt;</span><br><span class="line">            &lt;&#x2F;configuration&gt;</span><br><span class="line">        &lt;&#x2F;plugin&gt;</span><br><span class="line">    &lt;&#x2F;plugins&gt;</span><br><span class="line">    &lt;resources&gt;</span><br><span class="line">        &lt;resource&gt;</span><br><span class="line">            &lt;directory&gt;src&#x2F;main&#x2F;java&lt;&#x2F;directory&gt;</span><br><span class="line">            &lt;includes&gt;</span><br><span class="line">                &lt;include&gt;**&#x2F;*.xml&lt;&#x2F;include&gt;</span><br><span class="line">            &lt;&#x2F;includes&gt;</span><br><span class="line">        &lt;&#x2F;resource&gt;</span><br><span class="line">    &lt;&#x2F;resources&gt;</span><br><span class="line">&lt;&#x2F;build&gt;</span><br></pre></td></tr></table></figure>
-<hr>
-<h2 id="（五）使用maven自动生成"><a href="#（五）使用maven自动生成" class="headerlink" title="（五）使用maven自动生成"></a>（五）使用maven自动生成</h2><p><img src="https://i.loli.net/2020/02/23/G5yNkOUqwEJXigZ.png" alt><br>控制台出现<br><img src="https://i.loli.net/2020/02/23/aI1dGmy98UAi3qC.png" alt><br>即生成成功<br>注：生成的实体类是没加序列化，不要忘记implements Serializable。</p>
-]]></content>
-      <categories>
-        <category>java</category>
-      </categories>
-      <tags>
-        <tag>mybatis</tag>
-        <tag>IDEA</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>GitHub小技巧</title>
-    <url>/2019/11/22/GitHub%E5%B0%8F%E6%8A%80%E5%B7%A7/</url>
-    <content><![CDATA[<p><img src="http://gss0.baidu.com/94o3dSag_xI4khGko9WTAnF6hhy/zhidao/pic/item/bba1cd11728b471049731910c5cec3fdfd03238a.jpg" alt></p>
-<a id="more"></a>
-<h3 id="GitHub小技巧"><a href="#GitHub小技巧" class="headerlink" title="GitHub小技巧"></a>GitHub小技巧</h3><hr>
-<h2 id="（一）快捷键查看：shift"><a href="#（一）快捷键查看：shift" class="headerlink" title="（一）快捷键查看：shift + ?"></a>（一）快捷键查看：shift + ?</h2><p>在任意界面输入shift + ?，可以显示快捷键。</p>
-<hr>
-<h2 id="（二）查看自己项目的访问数据：Insights-Traffic"><a href="#（二）查看自己项目的访问数据：Insights-Traffic" class="headerlink" title="（二）查看自己项目的访问数据：Insights - Traffic"></a>（二）查看自己项目的访问数据：Insights - Traffic</h2><p>在自己的项目下，点击Insights-Traffic，里面有Referring sites（代表大家从什么网页来到你的项目）和Popular content（代表大家经常看你项目的什么文件）。<br><img src="https://dragonbaby308.oss-cn-hangzhou.aliyuncs.com/git/github/shortcut.png" alt></p>
-<hr>
-<h2 id="（三）编辑代码"><a href="#（三）编辑代码" class="headerlink" title="（三）编辑代码"></a>（三）编辑代码</h2><p>在查看任意文件时，右上角会有一个小铅笔的标识。<br><img src="https://dragonbaby308.oss-cn-hangzhou.aliyuncs.com/git/github/pen.png" alt><br>点击小铅笔就可以直接编辑文件，编辑完成后，直接在页面上点击Propose File Change，Github就会为你fork这个仓库，创建一个pull request，节省了在本地fork -&gt; pull -&gt; 修改 -&gt; push -&gt; 创建PR的过程。</p>
-<hr>
-<h2 id="（四）趋势图——https-octoverse-github-com"><a href="#（四）趋势图——https-octoverse-github-com" class="headerlink" title="（四）趋势图——https://octoverse.github.com/"></a>（四）趋势图——<a href="https://octoverse.github.com/" target="_blank" rel="noopener">https://octoverse.github.com/</a></h2><p>Github语言趋势图：<a href="https://octoverse.github.com/" target="_blank" rel="noopener">https://octoverse.github.com/</a></p>
-<hr>
-<h2 id="（五）精确搜索项目"><a href="#（五）精确搜索项目" class="headerlink" title="（五）精确搜索项目"></a>（五）精确搜索项目</h2><p>in:name keyWord：项目名中含有keyWord<br>in:readme keyWord：项目README.md中含有keyWord<br>in:description keyWord：项目描述中含有keyWord<br>stars:&gt;N：星星数量大于N<br>language:Golang：语言限定为Golang语言<br>pushed:&gt;2019-06-06：最后一次提交时间晚于2019-06-06<br>比如我想搜索Golang语言微服务项目，最后一次提交时间要晚于2019-06-06，星星数量大于1000个：<br>in:description 微服务 language:go pushed:&gt;2019-06-06 stars:&gt;1000</p>
-]]></content>
-      <categories>
-        <category>其他</category>
-      </categories>
-      <tags>
-        <tag>GitHub</tag>
-        <tag>其他</tag>
       </tags>
   </entry>
 </search>

@@ -1166,7 +1166,7 @@ body {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #4ff;
+  background: #b0ffff;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
@@ -2358,7 +2358,7 @@ ul.breadcrumb li + li:last-child {
   width: 240px;
   background: rgba(255,255,255,0.8);
   box-shadow: initial;
-  border-radius: initial;
+  border-radius: 15px 15px 15px 15px;
 }
 @media (min-width: 1200px) {
   .container .header-inner {
@@ -2418,7 +2418,7 @@ ul.breadcrumb li + li:last-child {
   background: rgba(255,255,255,0.7);
   min-height: 700px;
   box-shadow: initial;
-  border-radius: initial;
+  border-radius: 15px 15px 15px 15px;
 }
 @media (min-width: 768px) and (max-width: 991px) {
   .content-wrap {
@@ -2632,7 +2632,7 @@ ul.breadcrumb li + li:last-child {
 }
 .sidebar-inner {
   background: rgba(255,255,255,0.7);
-  border-radius: initial;
+  border-radius: 15px;
   box-shadow: initial;
   box-sizing: border-box;
   color: #555;
