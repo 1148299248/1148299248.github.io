@@ -1166,7 +1166,7 @@ body {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #ffe509;
+  background: #91f9ff;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
